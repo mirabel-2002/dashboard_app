@@ -1,14 +1,11 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-import streamlit as st
+import dash
+from dash import dcc, html
 import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
 import requests
 from bs4 import BeautifulSoup
-from geopy.geocoders import Nominatim
+
+# Initialize Dash app
+app = dash.Dash(__name__)
 
 # Define the website URL
 website = 'https://www.cars.com/shopping/results/?makes[]=&maximum_distance=all&models[]=&page=5&stock_type=all&zip='
@@ -93,20 +90,42 @@ for result in all_data:
 car_dealer = pd.DataFrame({'Name': name, 'Location':location, 'Dealer Name':dealer_name,
                             'Rating': rating, 'Review Count': review_count, 'Price': price})
 
-# Display the DataFrame
-st.write(car_dealer)
+# Dash layout
+app.layout = html.Div([
+    html.H1("Car Dealership Dashboard"),
+    html.Div([
+        html.H3("Data from Cars.com"),
+        dcc.Graph(
+            id='dealer-cars',
+            figure={
+                'data': [
+                    {'x': car_dealer['Dealer Name'], 'type': 'histogram', 'name': 'Number of Cars'}
+                ],
+                'layout': {
+                    'title': 'Number of Cars for Sale by Dealer',
+                    'xaxis': {'title': 'Dealer Name'},
+                    'yaxis': {'title': 'Number of Cars'},
+                }
+            }
+        )
+    ]),
+    html.Div([
+        html.H3("Car Dealer Information"),
+        dcc.Graph(
+            id='dealer-table',
+            figure={
+                'data': [
+                    {
+                        'type': 'table',
+                        'header': dict(values=list(car_dealer.columns)),
+                        'cells': dict(values=car_dealer.values.T)
+                    }
+                ]
+            }
+        )
+    ])
+])
 
-# Plotting the data
-plt.figure(figsize=(10, 6))
-sns.countplot(data=car_dealer, x='Dealer Name')
-plt.xticks(rotation=45)
-plt.title('Number of Cars for Sale by Dealer')
-plt.xlabel('Dealer Name')
-plt.ylabel('Number of Cars')
-plt.show()
-st.pyplot()
-
-# Additional analysis and visualization can be added here
-
-
-
+# Run the app
+if __name__ == '__main__':
+    app.run_server(debug=True)
