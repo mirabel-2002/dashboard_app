@@ -12,6 +12,9 @@ from geopy.geocoders import Nominatim
 # Define the website URL
 website = 'https://www.cars.com/shopping/results/?makes[]=&maximum_distance=all&models[]=&page=5&stock_type=all&zip='
 
+#Make DataFrame Pipeline Interactive
+website = df.interactive()
+
 # Initialize an empty list to store data from all pages
 results = []
 
@@ -95,3 +98,34 @@ car_dealer = pd.DataFrame({'Name': name, 'Location': location, 'Dealer Name': de
 # Display the DataFrame
 st.write("Car Dealer Data:")
 st.dataframe(car_dealer)
+
+
+
+
+
+template = pn.template.FastListTemplate(
+    title='Sales business in USA dashboad',
+    sidebar=[pn.pane.Markdown("# CO2 Emissions and Climate Change"),
+             pn.pane.Markdown("### Carbon dioxide emissions are the primary driver of the global climate change. It's widely recognised that to avoid the worst impacts of climate change, the world needs to urgently reduce emissions. But, how this responsibility is shared between regions, countries, and individuals has been an endless point of contention in international discussions."),
+             pn.pane.PNG('climate_day.png', sizing_mode='scale_both'),
+             pn.pane.Markdown("## Settings"),
+             year_slider],
+    main=[pn.Row(pn.Column(yaxis_co2,
+                           co2_plot.panel(width=700), margin=(0,25)),
+                 co2_table.panel(width=500)),
+          pn.Row(pn.Column(co2_vs_gdp_scatterplot.panel(width=600), margin=(0,25)),
+                  pn.Column(yaxis_co2_source, co2_source_bar_plot.panel(width=600)))],
+    
+    accent_base_color="#88d8b0",
+    header_background="#88d8b0")
+
+
+#template.show()
+template.servable();
+
+
+# In[21]:
+
+
+get_ipython().run_line_magic('panel', 'serve streamlit_app.py')
+
